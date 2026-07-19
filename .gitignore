@@ -1,0 +1,29 @@
+# Environment variables
+.env
+
+# ChromaDB database (don't upload the actual vector store)
+chroma_db/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual environment (if you used venv)
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Data (PDFs you tested with — don't upload these)
+data/*.pdf
