@@ -1,7 +1,131 @@
+[![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Gemini API](https://img.shields.io/badge/Powered%20by-Google%20Gemini-orange)](https://ai.google.dev)
+
 # DocMind AI — AI-Powered Document Q&A System (RAG-Based)
 
+**A Retrieval-Augmented Generation (RAG) system that lets you ask questions about your own PDF documents.**
+
+## Features
+- **PDF Processing**: Automatically extracts and chunks text from PDF files
+- **Semantic Search**: Uses Gemini embeddings to find contextually relevant document sections
+- **Grounded Answers**: Generates responses using only retrieved content (reduces hallucination)
+- **Interactive UI**: Chat-based interface built with Streamlit
+- **Source Attribution**: Shows which documents were used to answer each question
+
+## Architecture
+- **Embedding Model**: Google Gemini (`gemini-embedding-001`)
+- **Vector Database**: ChromaDB (local, persistent storage)
+- **Generation Model**: Google Gemini (`gemini-2.0-flash`)
+- **Frontend**: Streamlit
+
+## Quick Start
+
+### Prerequisites
+- Python 3.8+
+- Google Gemini API key (free at https://aistudio.google.com/apikey)
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/docmind-ai.git
+cd docmind-ai
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Setup
+1. Create a `.env` file and add your API key: AQ.Ab8RN6Ip-qaDNpQUpbXqXTsxB2172iAZ4T2OOaGq4Y9HZXXSDw
+
+2. Add your PDF files to the `data/` folder
+
+3. Index the documents:
+```bash
+python ingest.py
+```
+
+4. Launch the chat interface:
+```bash
+streamlit run app.py
+```
+
+## How It Works
+
+### Ingestion (`ingest.py`)
+1. Reads PDFs from `data/` folder
+2. Chunks text into 500-word segments with 50-word overlap
+3. Embeds each chunk using Gemini's embedding model
+4. Stores embeddings + metadata in ChromaDB vector database
+
+### Retrieval & Generation (`app.py`)
+1. User asks a question via Streamlit chat interface
+2. Question is embedded using same model
+3. ChromaDB performs cosine similarity search to find top-4 most relevant chunks
+4. Retrieved chunks + question sent to Gemini for generation
+5. Gemini generates grounded answer (instructed to use only provided context)
+6. Answer + source documents displayed to user
+
+## Project Structure
 Ask questions about your own PDF documents and get grounded, AI-generated answers.
 Built using Google Gemini (embeddings + generation) and ChromaDB (vector database).
+
+docmind-ai/
+├── rag_utils.py       # Shared helper functions (embedding, chunking, ChromaDB)
+├── ingest.py          # One-time script to process PDFs and build vector database
+├── app.py             # Streamlit chat interface
+├── requirements.txt   # Python dependencies
+├── .env.example       # Template for environment variables
+├── .gitignore         # Git configuration
+├── data/              # Folder for your PDF files
+└── README.md          # This file
+
+## Technical Details
+
+### Vector Search
+Uses cosine similarity to find semantically similar document chunks. The Gemini embedding model converts text into 768-dimensional vectors.
+
+### Grounding
+The LLM is explicitly instructed: "Answer using ONLY the context provided below." This grounds responses in actual document content, reducing hallucination.
+
+### Chunking Strategy
+- Chunk size: 500 words
+- Overlap: 50 words (preserves context across boundaries)
+- Prevents loss of information at chunk boundaries
+
+## Performance
+- Average retrieval latency: ~100-200ms (depends on ChromaDB size)
+- Embedding API calls: Batched in groups of 20 for efficiency
+- Storage: Minimal (vector embeddings are compressed, metadata-only)
+
+## Limitations & Future Work
+- ChromaDB is local; for production, use a cloud vector DB (Pinecone, Weaviate)
+- Currently supports PDF input; could extend to Word, text, web pages
+- No multi-user support (session-based)
+- No chat history persistence across app restarts
+
+## Use Cases
+- Study assistant (ask questions about course notes)
+- Document analysis (Q&A over research papers, reports)
+- Knowledge base (company docs, manuals, FAQs)
+
+## Author
+**Rana Muhammad Najabat Ali**
+- Email: alinajabat84@gmail.com
+- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+- LinkedIn: [Your Profile]
+
+## License
+MIT License - feel free to use and modify this project
+
+## Acknowledgments
+- Google Gemini API for embeddings and generation
+- ChromaDB for vector storage
+- Streamlit for UI framework
 
 ## How it works
 1. `ingest.py` reads your PDFs, splits them into chunks, converts each chunk into
